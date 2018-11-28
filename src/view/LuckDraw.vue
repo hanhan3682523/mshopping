@@ -41,9 +41,9 @@
         </div>
         <!-- 用户条款 -->
         <div class="xieyi">
-            <i class="icon select"></i>
+            <i class="icon" :class="{select:pselect}" @click="selectProtocol"></i>
             <span class="des">我已阅读并同意用户条款</span>
-            <a class="check" href="javascript:void(0);">点击查看</a>
+            <a class="check" href="javascript:void(0);" @click="showProtocol">点击查看</a>
         </div>
         <!-- 抽奖弹框 -->
         <Draw :message="{goodsImg,goodsName}" />
@@ -52,6 +52,8 @@
         <!--134抽奖图片宽度 588指3张图片*高度196 -->
         <canvas id="myCanvas" width="134" height="588">
         </canvas>
+        <!-- 用户协议 -->
+        <ProtocolDialog ref="childprotocol" @agreeprotocol="agreeProtocol"/>
     </div>
 
 </template>
@@ -70,19 +72,20 @@ import { Common } from '../utils/common.js'
 //头部组件
 import Draw from '../components/luckdraw/Draw'
 import NoPrize from '../components/luckdraw/NoPrize'
+import ProtocolDialog from '../components/luckdraw/ProtocolDialog'
 import imgs1 from '@/assets/image/1.png'
-import imgs2 from '@/assets/image/2.png'
 import imgs3 from '@/assets/image/3.png'
 let imgObj = {
     "1": imgs1,
-    "2": imgs2,
+    "2": '',
     "3": imgs3
 };
 export default {
     //使用的组件
     components: {
         Draw,
-        NoPrize
+        NoPrize,
+        ProtocolDialog
     },
     data() {
         return {
@@ -101,7 +104,9 @@ export default {
             //支付信息
             payParams: null,
             //订单编号
-            ProductJson: ''
+            ProductJson: '',
+            //默认选择协议
+            pselect:true
         }
     },
     computed: {
@@ -115,6 +120,28 @@ export default {
         }
     },
     methods: {
+
+         /*
+            用户协议
+        */
+        showProtocol(){
+            this.$refs.childprotocol.showProtocal = true;
+        },
+
+        /*
+            勾选、去勾选用户协议
+        */
+        selectProtocol(){
+            this.pselect = !this.pselect;
+        },
+
+        /*
+            同意用户协议
+        */
+        agreeProtocol(){
+            this.pselect = true;
+        },
+
         /*
             计算中奖概率
         */
@@ -130,19 +157,26 @@ export default {
         */
         pageInfo() {
             let _this = this;
-            _this.$dialog.loading.open('支付中...');
-            //用户信息
-            let _info = Common.getSessionInfo('wechatinfo');
-            // 获取授权信息
-            if (_info) {
-                //获取支付信息
-                _this.getPayInfo(_info);
-            } else {
-                //设置授权code
-                _this.$store.dispatch('wechatAuth', {
-                    isIndex: false
+            if(this.pselect){
+                _this.$dialog.loading.open('支付中...');
+                //用户信息
+                let _info = Common.getSessionInfo('wechatinfo');
+                // 获取授权信息
+                if (_info) {
+                    //获取支付信息
+                    _this.getPayInfo(_info);
+                } else {
+                    //设置授权code
+                    _this.$store.dispatch('wechatAuth', {
+                        isIndex: false
+                    });
+                    _this.$dialog.loading.close();
+                }
+            }else{
+                _this.$dialog.toast({
+                    mes: '请阅读并同意用户条款',
+                    timeout: 1500
                 });
-                _this.$dialog.loading.close();
             }
         },
 
@@ -287,7 +321,7 @@ export default {
             $('.draw-content .result').hide();
             $('.draw-content .prize').show();
             setTimeout(function () {
-                $('.draw-content .goods').luckDraw(_height, isWin ? '111' : '113', function () {
+                $('.draw-content .goods').luckDraw(_height, isWin ? '222' : '113', function () {
                     if (isWin) {
                         //中奖
                         $('.result').show(300);
@@ -306,6 +340,7 @@ export default {
             let _this = this;
             if (index <= 3) {
                 let image = new Image();
+                image.crossOrigin = '';
                 image.onload = function () {
                     context.drawImage(image, 0, (index - 1) * _height, _width, _height);
                     _this.drawImg(index + 1);
@@ -362,7 +397,7 @@ export default {
             let _this = this;
             _this.$dialog.loading.open('正在取货...');
             //立即购买
-            let _url = host.shopping + "/api/Hi/PickupImmediately?tradeNo=123" + _this.ProductJson;
+            let _url = host.shopping + "/api/Hi/PickupImmediately?tradeNo=" + _this.ProductJson;
             $.ajax({
                 type: 'POST',
                 contentType: "application/json;charset=utf-8",
@@ -416,9 +451,13 @@ export default {
                 _this.goodsName = _goodsList[i].goodsName;
                 _this.goodsImg = _goodsList[i].goodsImg;
                 _this.goodsPrice = _goodsList[i].goodsPrice;
-                return;
+                break;
             }
         }
+        imgObj['2'] = _this.goodsImg;
+        console.info('画图：',imgObj);
+        //合成背景图片
+        _this.drawImg(1);
         if (!isGet) {
             _this.$router.push({ path: '/?machineId=' + _this.$route.params.machineId })
         }
@@ -426,8 +465,6 @@ export default {
     mounted() {
         canvas = $('#myCanvas')[0];
         context = canvas.getContext('2d');
-        //合成背景图片
-        this.drawImg(1);
         //绑定页面元素点击事件
         this.bindClick();
     }
@@ -482,7 +519,7 @@ export default {
             position: relative;
             .doubt {
                 position: absolute;
-                display: block;
+                display: none;
                 width: 40px;
                 height: 40px;
                 background: url("../assets/image/luckdraw/wenhao.png") center

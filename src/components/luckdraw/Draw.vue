@@ -11,7 +11,7 @@
                         <div class="goods"></div>
                     </div>
                 </div>
-                <i class="close"></i>
+                <i class="close" @click="closeDialog"></i>
             </div>
             <div class="result">
                 <div class="success"></div>
@@ -33,7 +33,12 @@
 
 <script>
 export default {
-    props: ['message']
+    props: ['message'],
+    methods:{
+        closeDialog(){
+            $('.draw-content .prize').hide();
+        }
+    }
 }
 </script>
 
