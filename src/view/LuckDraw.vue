@@ -202,16 +202,25 @@ export default {
                 data: JSON.stringify(listProductPay),
                 success: function (res) {
                     try {
-                        //订单编号
-                        _this.ProductJson = res.RetObj.ProductJson;
-                        //支付信息
-                        _this.payParams = JSON.parse(res.RetObj.RequestData);
-                        _this.callPay();
+                        if(res.RetObj.RequestData){
+                            //订单编号
+                            _this.ProductJson = res.RetObj.ProductJson;
+                            //支付信息
+                            _this.payParams = JSON.parse(res.RetObj.RequestData);
+                            _this.callPay();
+                        }else{
+                            _this.$dialog.loading.close();
+                            _this.$dialog.toast({
+                                mes: res.RetMsg || '支付失败',
+                                timeout: 2000,
+                                icon: 'error'
+                            });
+                        }
                     } catch (e) {
                         _this.$dialog.loading.close();
                         _this.$dialog.toast({
-                            mes: '支付失败',
-                            timeout: 1500,
+                            mes: res.RetMsg || '支付失败',
+                            timeout: 2000,
                             icon: 'error'
                         });
                     }
@@ -253,7 +262,7 @@ export default {
                         //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
                         _this.$dialog.toast({
                             mes: '支付成功',
-                            timeout: 1500,
+                            timeout: 2000,
                             icon: 'success',
                             callback: () => {
                                 _this.$dialog.loading.open('准备开始抽奖');
@@ -264,7 +273,7 @@ export default {
                     } else {
                         _this.$dialog.toast({
                             mes: '支付失败',
-                            timeout: 1500,
+                            timeout: 2000,
                             icon: 'error'
                         });
                     }

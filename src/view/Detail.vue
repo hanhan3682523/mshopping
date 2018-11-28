@@ -155,13 +155,22 @@ export default {
                 data: JSON.stringify(_param.listProductPay),
                 success: function(res){
                     try{
-                        _this.payParams = JSON.parse(res.RetObj.RequestData);
-                        _this.callPay();
+                        if(res.RetObj.RequestData){
+                            _this.payParams = JSON.parse(res.RetObj.RequestData);
+                            _this.callPay();
+                        }else{
+                            _this.$dialog.loading.close();
+                            _this.$dialog.toast({
+                                mes: res.RetMsg || '支付失败',
+                                timeout: 2000,
+                                icon: 'error'
+                            });
+                        }
                     }catch(e){
                         _this.$dialog.loading.close();
                         _this.$dialog.toast({
-                            mes: '支付失败',
-                            timeout: 1500,
+                            mes: res.RetMsg || '支付失败',
+                            timeout: 2000,
                             icon: 'error'
                         });
                     }
@@ -197,13 +206,13 @@ export default {
                         //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
                         _this.$dialog.toast({
                             mes: '支付成功',
-                            timeout: 1500,
+                            timeout: 2000,
                             icon: 'success'
                         });
                     }else{
                         _this.$dialog.toast({
                             mes: '支付失败',
-                            timeout: 1500,
+                            timeout: 2000,
                             icon: 'error'
                         });
                     } 
