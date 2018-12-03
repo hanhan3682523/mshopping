@@ -354,7 +354,11 @@ export default {
                     context.drawImage(image, 0, (index - 1) * _height, _width, _height);
                     _this.drawImg(index + 1);
                 }
-                image.src = imgObj[index];
+                if(index === 2){
+                    image.src = imgObj[index]+'?v='+new Date().getTime();
+                }else{
+                    image.src = imgObj[index];
+                }
             } else {
                 console.log('结束');
                 let _img = canvas.toDataURL('image/png');
