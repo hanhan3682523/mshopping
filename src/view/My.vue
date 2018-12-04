@@ -58,7 +58,8 @@ export default {
     },
     data() {
         return {
-            count:'0'
+            count:'0',
+            checknum :0
         }
     },
     computed:{
@@ -164,7 +165,6 @@ export default {
             }else{
                 _url = host.shopping + "/api/Hi/PickupImmediately?tradeNo=" + tradeno;
             }
-            
             $.ajax({
                 type: 'POST',
                 contentType: "application/json;charset=utf-8",
@@ -172,51 +172,97 @@ export default {
                 url: _url,
                 success: function (res) {
                     if (res.RetObj == 1) {
-                        setTimeout(function(){
-                            _this.$dialog.loading.close();
-                            _this.$dialog.toast({
-                                mes: isCard ? '取卡成功' : '取货成功',
-                                timeout: 1500,
-                                icon: 'success',
-                                callback: () => {
-                                    if(isCard){
-                                        _this.getMemberAccount();
-                                    }else{
-                                        _this.loadList();
-                                    }
-                                }
-                            });
-                        },6000);
+                        if(isCard){
+                            setTimeout(function(){
+                                _this.getSuccess(isCard);
+                            },6000);
+                        }else{
+                            //查询取货状态
+                            _this.checkGetGoodsState(tradeno,isCard);
+                        }
                     } else {
-                        _this.$dialog.loading.close();
-                        _this.$dialog.toast({
-                            mes: isCard ? '取卡失败' : '取货失败',
-                            timeout: 1500,
-                            icon: 'error',
-                            callback: () => {
-                               if(isCard){
-                                    _this.getMemberAccount();
-                                }else{
-                                    _this.loadList();
-                                }
-                            }
-                        });
+                        _this.getFail(isCard,res);
                     }
                 },
                 error: function (err) {
-                    _this.$dialog.loading.close();
-                    _this.$dialog.toast({
-                        mes: isCard ? '取卡失败' : '取货失败',
-                        timeout: 1500,
-                        icon: 'error',
-                        callback: () => {
-                            if(isCard){
-                                _this.getMemberAccount();
-                            }else{
-                                _this.loadList();
-                            }
+                    _this.getFail(isCard);
+                }
+            });
+        },
+
+        /*
+            查询取货状态
+        */
+        checkGetGoodsState(tradeno,isCard){
+            let _this = this;
+            let _url = host.shopping + "/api/Hi/GetPickupStatusByTradeNo?tradeNo=" + tradeno;
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json;charset=utf-8",
+                dataType: 'json',
+                url: _url,
+                success: function (res) {
+                    //0：出货失败 1：出货成功 2：出货中
+                    if(res.RetObj == 0){
+                        _this.getFail(isCard,res);
+                    } else if(res.RetObj == 1){
+                        _this.getSuccess(isCard);
+                    } else if(res.RetObj == 2){
+                        if(_this.checknum<7){
+                            setTimeout(function(){
+                                _this.checknum = _this.checknum+1;
+                                _this.checkGetGoodsState(tradeno,isCard);
+                            },4000);
+                        }else{
+                            _this.checknum = 0;
+                            _this.getFail(isCard,res);
                         }
-                    });
+                    } else {
+                        _this.getFail(isCard,res);
+                    }
+                },
+                error: function (err) {
+                    _this.getFail(isCard);
+                }
+            });
+        },
+
+        /*
+            取货成功
+        */
+        getSuccess(isCard){
+            let _this = this;
+            _this.$dialog.loading.close();
+            _this.$dialog.toast({
+                mes: isCard ? '取卡成功' : '取货成功',
+                timeout: 1500,
+                icon: 'success',
+                callback: () => {
+                    if(isCard){
+                        _this.getMemberAccount();
+                    }else{
+                        _this.loadList();
+                    }
+                }
+            });
+        },
+
+        /*
+            取货fail
+        */
+        getFail(isCard,res){
+            let _this = this;
+            _this.$dialog.loading.close();
+            _this.$dialog.toast({
+                mes: (res && res.RetMsg) ? res.RetMsg : (isCard ? '取卡失败' : '取货失败'),
+                timeout: 1500,
+                icon: 'error',
+                callback: () => {
+                    if(isCard){
+                        _this.getMemberAccount();
+                    }else{
+                        _this.loadList();
+                    }
                 }
             });
         }
