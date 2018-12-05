@@ -48,8 +48,8 @@ const actions = {
                         TotalNum:_data[i].TotalNum
                     });
                 }
-                commit('setOrderList', newList);
             }
+            commit('setOrderList', newList);
             _this.$dialog.loading.close();
         });
     }
