@@ -46,9 +46,9 @@
             <a class="check" href="javascript:void(0);" @click="showProtocol">点击查看</a>
         </div>
         <!-- 抽奖弹框 -->
-        <Draw :message="{goodsImg,goodsName}" />
+        <Draw :message="{goodsImg,goodsName}" @tryagin="pageInfo" />
         <!-- 未中奖弹框 -->
-        <NoPrize />
+        <NoPrize @tryagin="pageInfo" />
         <!--134抽奖图片宽度 588指3张图片*高度196 -->
         <canvas id="myCanvas" width="134" height="588">
         </canvas>
@@ -377,13 +377,8 @@ export default {
                 _this.openConfrim();
             });
 
-            //抽奖框关闭
-            $(document).on('click', '.draw-content .prize .close,.draw-content .prize .again', function () {
-                $('.draw-content .prize').hide();
-            });
-
             //未中奖弹框框关闭
-            $(document).on('click', '.draw-content .no-prize .no-close,.draw-content .no-prize .btn', function () {
+            $(document).on('click', '.draw-content .no-prize .no-close,.draw-content .no-prize .left', function () {
                 $('.draw-content .no-prize,.draw-content .prize').hide();
             });
         },

@@ -8,7 +8,7 @@
                 <p class="des">竟然没有中奖，一定是姿势不对~</p>
                 <div class="btn-group">
                     <a class="btn left" href="javascript:void(0);"></a>
-                    <a class="btn right" href="javascript:void(0);"></a>
+                    <a class="btn right" href="javascript:void(0);" @click="tryAgain"></a>
                 </div>
             </div>
         </div>
@@ -17,7 +17,16 @@
 
 <script>
 export default {
-
+    methods:{
+        tryAgain(){
+            let _this = this;
+            $('.draw-content .no-prize,.draw-content .prize').hide();
+            setTimeout(function(){
+                //直接跳到付款
+                _this.$emit('tryagin');
+            },10);
+        }
+    }
 }
 </script>
 
@@ -73,11 +82,11 @@ export default {
                 background-size: contain;
                 background-repeat: no-repeat;
                 &.left{
-                    background-image: url('../../assets/image/luckdraw//wancheng.png');
+                    background-image: url('../../assets/image/luckdraw/wancheng.png');
                     margin-right: 36px;
                 }
                 &.right{
-                    background-image: url('../../assets/image/luckdraw//jixu.png');
+                    background-image: url('../../assets/image/luckdraw/jixu.png');
                 }
             }
         }

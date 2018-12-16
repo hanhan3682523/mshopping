@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <a class="get-goods" href="javascript:void(0);"></a>
-                <a class="again" href="javascript:void(0);"></a>
+                <a class="again" href="javascript:void(0);" @click="tryAgain"></a>
             </div>
         </div>
     </div>
@@ -37,6 +37,15 @@ export default {
     methods:{
         closeDialog(){
             $('.draw-content .prize').hide();
+        },
+        //继续嗨
+        tryAgain(){
+            let _this = this;
+            $('.draw-content .prize').hide();
+            setTimeout(function(){
+                //直接跳到付款
+                _this.$emit('tryagin');
+            },10);
         }
     }
 }
