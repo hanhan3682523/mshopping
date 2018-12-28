@@ -24,9 +24,9 @@
                             <img :src="goodsImg">
                         </div>
                         <div class="name-price">
-                            <p class="name">{{goodsName}}</p>
+                            <p class="name">{{goodsName}}(免单商品)</p>
                             <div class="price">
-                                <span class="span1">抽奖价格: ￥{{drawPrice}}</span>
+                                <span class="span1">购卡金额: ￥{{drawPrice}}</span>
                                 <span class="span2">￥{{goodsPrice}}</span>
                             </div>
                         </div>
@@ -157,6 +157,13 @@ export default {
         */
         pageInfo() {
             let _this = this;
+            try{
+                if(sessionStorage.getItem('debug')=='true'){
+                    alert('debug');
+                    _this.gameStart(true);
+                    return;
+                }
+            }catch(e){}
             if(this.pselect){
                 _this.$dialog.loading.open('支付中...');
                 //用户信息
@@ -362,7 +369,10 @@ export default {
             } else {
                 console.log('结束');
                 let _img = canvas.toDataURL('image/png');
-                $('.goods').css('background-image', 'url(' + _img + ')');
+                _this.$nextTick(function(){
+                    $('.goods').css('background-image', 'url(' + _img + ')');
+                    _this.$dialog.loading.close();
+                });
             }
         },
 
@@ -464,15 +474,18 @@ export default {
         }
         imgObj['2'] = _this.goodsImg;
         console.info('画图：',imgObj);
-        //合成背景图片
-        _this.drawImg(1);
+        
         if (!isGet) {
             _this.$router.push({ path: '/?machineId=' + _this.$route.params.machineId })
         }
     },
     mounted() {
+        this.$dialog.loading.open('加载中');
         canvas = $('#myCanvas')[0];
         context = canvas.getContext('2d');
+        console.log(2);
+        //合成背景图片
+        this.drawImg(1);
         //绑定页面元素点击事件
         this.bindClick();
     }
@@ -651,6 +664,10 @@ export default {
                             line-height: 30px;
                             color: #000000;
                             margin-bottom: 32px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            width: 300px;
                         }
                         .price {
                             .span1 {

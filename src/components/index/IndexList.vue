@@ -18,6 +18,9 @@
                     <div class="goods-list-title">
                         <span slot="goodsName">{{item.goodsName.substring(0,3)}}</span>
                     </div>
+                    <div class="goods-list-stock">
+                        剩<span>{{item.CurrStock}}</span>件
+                    </div>
                     <div class="goods-list-price">
                         <span class="price"><em>¥</em>{{item.goodsPrice}}</span>
                     </div>
@@ -122,7 +125,7 @@ export default {
     .goods-list-item {
         display: block;
         width: 216px;
-        height: 308px;
+        height: 318px;
         border-radius: 12px;
         background-color: #ffffff;
         margin-right: 16px;
@@ -143,16 +146,24 @@ export default {
 
         .goods-list-title {
             text-align: center;
-            margin-top: 8px;
-            .title {
-                font-size: 24px;
+            margin-top: 5px;
+            span{
+                font-size: 22px;
                 color: #000000;
+            }
+        }
+        .goods-list-stock{
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+            span{
+                color: #ff0000;
             }
         }
 
         .goods-list-price {
             text-align: center;
-            margin-top: 18px;
+            margin-top: 0px;
             .price {
                 font-size: 24px;
                 color: #ff0000;

@@ -57,7 +57,13 @@ export default {
         this.$store.dispatch('getMachineInfo');
     },
     mounted() {
-
+        if(location.href.indexOf('debug=true')>-1){
+            try{
+                sessionStorage.setItem('debug','true');
+            }catch(e){
+                alert('不支持sessionStorage');
+            }
+        }
     }
 }
 </script>
